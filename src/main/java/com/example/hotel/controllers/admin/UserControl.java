@@ -1,8 +1,9 @@
-package com.example.hotel.controllers;
+package com.example.hotel.controllers.admin;
 
 import com.example.hotel.DTO.LoginDTO;
 import com.example.hotel.configuratoins.NotFoundException;
 import com.example.hotel.models.User;
+import com.example.hotel.models.enums.Role;
 import com.example.hotel.repositories.UserRepository;
 import com.example.hotel.services.CustomUserDetailsService;
 import com.example.hotel.services.UserService;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -23,16 +25,9 @@ public class UserControl {
     private  UserService userService;
     @Autowired
     private UserRepository userRepository;
-    /*@Autowired
-    private AuthenticationManager authenticationManager;*/
     @Autowired
     private final PasswordEncoder passwordEncoder;
     private CustomUserDetailsService customUserDetailsService;
-   /* public UserControl(UserService userService, UserRepository userRepository, AuthenticationManager authenticationManager) {
-        this.userService = userService;
-        this.userRepository = userRepository;
-        this.authenticationManager = authenticationManager;
-    }*/
 
     @PostMapping("/registration")
     User newUser(@RequestBody User newUser) {
@@ -43,6 +38,12 @@ public class UserControl {
     List<User> getAllUsers() {
         return userRepository.findAll();
     }
+
+    @GetMapping("/userlist")
+    List<User> getUserList(){return userService.listUser();}
+
+    @GetMapping("/managerlist")
+    List<User> getManagerList() {return userService.listManager();}
 
     @GetMapping("/user/{id}")
     User getUserById(@PathVariable Long id) {

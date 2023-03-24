@@ -1,7 +1,6 @@
 package com.example.hotel.services;
 
 import com.example.hotel.DTO.LoginDTO;
-import com.example.hotel.DTO.UserDTO;
 import com.example.hotel.models.User;
 import com.example.hotel.models.enums.Role;
 import com.example.hotel.repositories.UserRepository;
@@ -10,13 +9,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class UserService {
+public class UserService{
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -25,20 +28,10 @@ public class UserService {
         boolean check = true;
         String email = user.getEmail();
         if (userRepository.findByEmail(email) != null) return null;
-        user.getRoles().add(Role.USER);
+        user.getRoles().add(Role.ADMIN );
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
-
-
-    /*public User authenticate(String email, String password) {
-        User user = userRepository.findByEmail(email);
-        return user;
-        *//*if (user != null && user.getPassword().equals(password)) {
-            return user;
-        }
-        return null;*//*
-    }*/
 
     public User authenticate(LoginDTO loginDTO) {
         User user = null;
@@ -52,6 +45,18 @@ public class UserService {
             return user;
         }
         return null;
+    }
+
+    public List<User> listUser(){
+        return userRepository.findAll().stream()
+                .filter(user -> user.getRoles().contains(Role.USER))
+                .collect(Collectors.toList());
+    }
+
+    public List<User> listManager(){
+        return userRepository.findAll().stream()
+                .filter(user -> user.getRoles().contains(Role.MANAGER))
+                .collect(Collectors.toList());
     }
 
 }

@@ -11,7 +11,6 @@ import java.util.*;
 
 @Entity
 @Table(name = "users")
-
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,6 +31,7 @@ public class User implements UserDetails {
     public boolean isUser(){
         return  roles.contains(Role.USER);
     }
+    public boolean isManager(){return roles.contains(Role.MANAGER);}
 
     public Long getId() {
         return id;
