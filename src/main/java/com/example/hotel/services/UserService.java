@@ -6,13 +6,11 @@ import com.example.hotel.models.enums.Role;
 import com.example.hotel.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.security.Principal;
-import java.util.ArrayList;
+import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -25,14 +23,26 @@ public class UserService{
     private final PasswordEncoder passwordEncoder;
 
     public User createNewUser(User user) {
-        boolean check = true;
         String email = user.getEmail();
-        if (userRepository.findByEmail(email) != null) return null;
-        user.getRoles().add(Role.ADMIN );
+        if (userRepository.findByEmail(email) != null) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "User with this email already exists");
+        }
+
+        user.getRoles().add(Role.USER);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 
+
+    public User createNewManager(User user){
+        String email = user.getEmail();
+        if (userRepository.findByEmail(email) != null) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "User with this email already exists");
+        }
+        user.getRoles().add(Role.MANAGER);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        return userRepository.save(user);
+    }
     public User authenticate(LoginDTO loginDTO) {
         User user = null;
         try {

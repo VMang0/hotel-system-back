@@ -1,5 +1,6 @@
 package com.example.hotel.DTO;
 
+
 public class LoginDTO {
     private String email;
     private String password;

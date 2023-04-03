@@ -3,19 +3,17 @@ package com.example.hotel.controllers.admin;
 import com.example.hotel.DTO.LoginDTO;
 import com.example.hotel.configuratoins.NotFoundException;
 import com.example.hotel.models.User;
-import com.example.hotel.models.enums.Role;
 import com.example.hotel.repositories.UserRepository;
-import com.example.hotel.services.CustomUserDetailsService;
 import com.example.hotel.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 @RestController
 @CrossOrigin("http://localhost:3000")
@@ -27,11 +25,20 @@ public class UserControl {
     private UserRepository userRepository;
     @Autowired
     private final PasswordEncoder passwordEncoder;
-    private CustomUserDetailsService customUserDetailsService;
+
+    @Autowired
+    private JavaMailSender mailSender;
+
+    private String verificationCode = "";
 
     @PostMapping("/registration")
     User newUser(@RequestBody User newUser) {
         return userService.createNewUser(newUser);
+    }
+
+    @PostMapping("/add_manager")
+    User newManager(@RequestBody User newUser) {
+        return userService.createNewManager(newUser);
     }
 
     @GetMapping("/users")
@@ -53,10 +60,11 @@ public class UserControl {
 
     @PutMapping("/user/{id}")
     User updateUser(@RequestBody User newUser, @PathVariable Long id) {
+        String role = String.valueOf(newUser.getRoles());
         return userRepository.findById(id)
                 .map(user -> {
                     user.setEmail(newUser.getEmail());
-                    user.setPassword(newUser.getPassword());
+                    user.setRoles(newUser.getRoles());
                     return userRepository.save(user);
                 }).orElseThrow(() -> new NotFoundException(id));
     }
@@ -76,6 +84,31 @@ public class UserControl {
         if(user == null)
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         return ResponseEntity.ok(user);
+    }
+
+    @PostMapping("/send-code")
+    public ResponseEntity<Void> sendCode(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        if (email == null || email.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        verificationCode = String.format("%06d", (int) (Math.random() * 999999));
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("mangwork960@gmail.com");
+        message.setTo(email);
+        message.setSubject("Verification Code");
+        message.setText("Ваш код для регистрации: " + verificationCode);
+        mailSender.send(message);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping("/verify-code")
+    public ResponseEntity<Void> verifyCode(@RequestBody Map<String, String> request) {
+        String code = request.get("verificationCode");
+        if (code.equals(verificationCode)) {
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 }
 
