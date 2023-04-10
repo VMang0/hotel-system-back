@@ -13,12 +13,15 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.util.*;
 
 @RestController
 @CrossOrigin("http://localhost:3000")
 @RequiredArgsConstructor
 public class UserControl {
+
     @Autowired
     private  UserService userService;
     @Autowired
@@ -81,7 +84,7 @@ public class UserControl {
     @PostMapping("/loginuser")
     public ResponseEntity<?> authenticate(@RequestBody LoginDTO loginDTO) {
         User user = userService.authenticate(loginDTO);
-        if(user == null)
+        if(user == null || userRepository.findByEmail(loginDTO.getEmail()) == null)
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         return ResponseEntity.ok(user);
     }
@@ -89,7 +92,7 @@ public class UserControl {
     @PostMapping("/send-code")
     public ResponseEntity<Void> sendCode(@RequestBody Map<String, String> request) {
         String email = request.get("email");
-        if (email == null || email.isEmpty()) {
+        if (email == null || email.isEmpty() || userRepository.findByEmail(email) != null){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         verificationCode = String.format("%06d", (int) (Math.random() * 999999));
@@ -97,7 +100,7 @@ public class UserControl {
         message.setFrom("mangwork960@gmail.com");
         message.setTo(email);
         message.setSubject("Verification Code");
-        message.setText("Ваш код для регистрации: " + verificationCode);
+        message.setText("Ну привет мой сладкий пупсик, вот твой код для регистрации: " + verificationCode);
         mailSender.send(message);
         return new ResponseEntity<>(HttpStatus.OK);
     }

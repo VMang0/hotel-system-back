@@ -3,13 +3,13 @@ package com.example.hotel.models;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "type_room")
-public class Type_room {
+@Table(name = "type_bed")
+public class Type_bed {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_type_room")
+    @Column(name = "id_type_bed")
     private Long id;
-    @Column(name = "name_type_room")
+    @Column(name = "name_type_bed")
     private String name;
 
 
