@@ -6,6 +6,7 @@ import com.example.hotel.configuratoins.NotFoundException;
 import com.example.hotel.models.*;
 import com.example.hotel.repositories.RoomRepository;
 import com.example.hotel.repositories.TypeBedRepository;
+import com.example.hotel.repositories.TypeMealsRepository;
 import com.example.hotel.repositories.TypeRoomRepository;
 import com.example.hotel.services.RoomService;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -31,16 +31,39 @@ public class RoomController {
     private TypeRoomRepository typeRoomRepository;
     @Autowired
     private TypeBedRepository typeBedRepository;
+    @Autowired
+    private TypeMealsRepository typeMealsRepository;
 
     @Autowired
     private RoomRepository roomRepository;
 
 
-    @PostMapping("/add_room")///@RequestBody RoomDTO roomDTO
+
+    @PostMapping("/add_room")
     public ResponseEntity<Room> newRoom( @RequestParam("room") RoomDTO roomDTO, @RequestParam("files") MultipartFile[] files) throws IOException {
         Room createroom = roomService.createNewRoom(roomDTO, files);
         return new ResponseEntity<>(createroom, HttpStatus.CREATED);
     }
+
+    @DeleteMapping("/room/{id}")
+    public ResponseEntity<?> deleteRoom(@PathVariable Long id) {
+        if (!roomRepository.existsById(id)) {
+            throw new NotFoundException(id);
+        }
+        roomRepository.deleteById(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("/list/rooms")
+    List<RoomDTO> getAllRooms(){return roomService.findAllRooms();}
+
+    @GetMapping("/room/{id}")
+    RoomDTO getRoomById(@PathVariable Long id) {
+        return roomService.findOneRoom(id);
+    }
+
+    @GetMapping("/list/type_meals")
+    List<Type_meal> getListType_Meals(){ return typeMealsRepository.findAll();}
 
     @GetMapping("/list/type_room")
     List<Type_room> getAllTypeRooms() {
@@ -52,11 +75,5 @@ public class RoomController {
         return typeBedRepository.findAll();
     }
 
-    @GetMapping("/list/rooms")
-    List<RoomDTO> getAllRooms(){return roomService.findAllRooms();}
 
-    @GetMapping("/room/{id}")
-    RoomDTO getUserById(@PathVariable Long id) {
-        return roomService.findOneRoom(id);
-    }
 }
