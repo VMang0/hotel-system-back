@@ -10,7 +10,7 @@ public class Status {
     @Column(name = "id_status")
     private Long id_status;
     @Column(name = "type_status")
-    private String type_status;
+    private String name;
 
     public Long getId_status() {
         return id_status;
@@ -20,11 +20,11 @@ public class Status {
         this.id_status = id_status;
     }
 
-    public String getType_status() {
-        return type_status;
+    public String getName() {
+        return name;
     }
 
-    public void setType_status(String type_status) {
-        this.type_status = type_status;
+    public void setName(String name) {
+        this.name = name;
     }
 }
