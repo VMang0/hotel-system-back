@@ -8,23 +8,35 @@ public class Type_meal {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_type_meal")
-    private Long id_type_meal;
+    private Long id;
     @Column(name = "name_type_meal")
-    private String name_type_meal;
+    private String name;
 
-    public Long getId_type_meal() {
-        return id_type_meal;
+    @Column(name = "cost_meal")
+    private double cost;
+
+
+    public Long getId() {
+        return id;
     }
 
-    public void setId_type_meal(Long id_type_meal) {
-        this.id_type_meal = id_type_meal;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public String getName_type_meal() {
-        return name_type_meal;
+    public String getName() {
+        return name;
     }
 
-    public void setName_type_meal(String name_type_meal) {
-        this.name_type_meal = name_type_meal;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public double getCost() {
+        return cost;
+    }
+
+    public void setCost(double cost) {
+        this.cost = cost;
     }
 }
