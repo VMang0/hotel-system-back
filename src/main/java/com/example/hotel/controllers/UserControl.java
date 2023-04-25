@@ -1,4 +1,4 @@
-package com.example.hotel.controllers.admin;
+package com.example.hotel.controllers;
 
 import com.example.hotel.DTO.LoginDTO;
 import com.example.hotel.configuratoins.NotFoundException;
@@ -9,11 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 
@@ -26,13 +22,6 @@ public class UserControl {
     private  UserService userService;
     @Autowired
     private UserRepository userRepository;
-    @Autowired
-    private final PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private JavaMailSender mailSender;
-
-    private String verificationCode = "";
 
     @PostMapping("/registration")
     User newUser(@RequestBody User newUser) {
@@ -45,7 +34,7 @@ public class UserControl {
     }
 
     @GetMapping("/users")
-    List<User> getAllUsers() {
+    public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
@@ -62,23 +51,13 @@ public class UserControl {
     }
 
     @PutMapping("/user/{id}")
-    User updateUser(@RequestBody User newUser, @PathVariable Long id) {
-        String role = String.valueOf(newUser.getRoles());
-        return userRepository.findById(id)
-                .map(user -> {
-                    user.setEmail(newUser.getEmail());
-                    user.setRoles(newUser.getRoles());
-                    return userRepository.save(user);
-                }).orElseThrow(() -> new NotFoundException(id));
+    public ResponseEntity<?> updateUser(@RequestBody User newUser, @PathVariable Long id) {
+       return userService.update(newUser, id);
     }
 
     @DeleteMapping("/user/{id}")
-    String deleteUser(@PathVariable Long id) {
-        if (!userRepository.existsById(id)) {
-            throw new NotFoundException(id);
-        }
-        userRepository.deleteById(id);
-        return "User with id + " + id + " has been deleted success. ";
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+       return userService.delete(id);
     }
 
     @PostMapping("/loginuser")
@@ -92,26 +71,13 @@ public class UserControl {
     @PostMapping("/send-code")
     public ResponseEntity<Void> sendCode(@RequestBody Map<String, String> request) {
         String email = request.get("email");
-        if (email == null || email.isEmpty() || userRepository.findByEmail(email) != null){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-        verificationCode = String.format("%06d", (int) (Math.random() * 999999));
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom("mangwork960@gmail.com");
-        message.setTo(email);
-        message.setSubject("Verification Code");
-        message.setText("Ну привет мой сладкий пупсик, вот твой код для регистрации: " + verificationCode);
-        mailSender.send(message);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return userService.sendCode(email);
     }
 
     @PostMapping("/verify-code")
     public ResponseEntity<Void> verifyCode(@RequestBody Map<String, String> request) {
         String code = request.get("verificationCode");
-        if (code.equals(verificationCode)) {
-            return new ResponseEntity<>(HttpStatus.OK);
-        }
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        return userService.verifyCode(code);
     }
 }
 
