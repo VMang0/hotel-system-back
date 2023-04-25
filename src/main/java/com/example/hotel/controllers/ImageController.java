@@ -1,4 +1,4 @@
-package com.example.hotel.controllers.manager;
+package com.example.hotel.controllers;
 
 import com.example.hotel.models.Image;
 import com.example.hotel.repositories.RoomImageRepository;
