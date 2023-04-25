@@ -12,11 +12,11 @@ public class Room {
     @Column(name = "id_room")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_type_room")
     private Type_room type_room;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_type_bed")
     private Type_bed type_bed;
 

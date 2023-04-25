@@ -10,6 +10,8 @@ import com.example.hotel.repositories.TypeBedRepository;
 import com.example.hotel.repositories.TypeRoomRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -51,9 +53,14 @@ public class RoomService {
         }
 
         return roomRepository.save(room);
-
     }
-
+    public ResponseEntity<?> delete(Long id){
+        if (!roomRepository.existsById(id)) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        roomRepository.deleteById(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 
     private Image toImageEntity(MultipartFile file) throws IOException {
         Image image = new Image();
@@ -64,7 +71,6 @@ public class RoomService {
     public List<RoomDTO> findAllRooms(){
         List<Room> rooms = roomRepository.findAll();
         List<RoomDTO> rooms1 = new ArrayList<>();
-
         for(Room room: rooms){
             RoomDTO roomDTO = new RoomDTO();
             roomDTO.setId(room.getId());

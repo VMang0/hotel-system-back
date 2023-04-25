@@ -1,4 +1,4 @@
-package com.example.hotel.controllers.manager;
+package com.example.hotel.controllers;
 
 
 import com.example.hotel.DTO.RoomDTO;
@@ -34,11 +34,6 @@ public class RoomController {
     @Autowired
     private TypeMealsRepository typeMealsRepository;
 
-    @Autowired
-    private RoomRepository roomRepository;
-
-
-
     @PostMapping("/add_room")
     public ResponseEntity<Room> newRoom( @RequestParam("room") RoomDTO roomDTO, @RequestParam("files") MultipartFile[] files) throws IOException {
         Room createroom = roomService.createNewRoom(roomDTO, files);
@@ -47,11 +42,7 @@ public class RoomController {
 
     @DeleteMapping("/room/{id}")
     public ResponseEntity<?> deleteRoom(@PathVariable Long id) {
-        if (!roomRepository.existsById(id)) {
-            throw new NotFoundException(id);
-        }
-        roomRepository.deleteById(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return roomService.delete(id);
     }
 
     @GetMapping("/list/rooms")
@@ -74,6 +65,5 @@ public class RoomController {
     List<Type_bed> getAllTypeBeds() {
         return typeBedRepository.findAll();
     }
-
 
 }
