@@ -1,5 +1,5 @@
 package com.example.hotel.configuratoins;
-import com.example.hotel.controllers.manager.convector.StringToDTOConverter;
+import com.example.hotel.controllers.StringToDTOConverter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
