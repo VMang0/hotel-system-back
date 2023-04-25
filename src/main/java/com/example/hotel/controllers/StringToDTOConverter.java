@@ -1,4 +1,4 @@
-package com.example.hotel.controllers.manager.convector;
+package com.example.hotel.controllers;
 
 import com.example.hotel.DTO.RoomDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
