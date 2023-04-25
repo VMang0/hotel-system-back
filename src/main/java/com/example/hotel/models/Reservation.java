@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import javax.persistence.*;
 import java.sql.Date;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "reservation")
@@ -17,7 +18,7 @@ public class Reservation {
     @Column(name = "id_reservation")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_user")
     private User user;
 
@@ -46,9 +47,9 @@ public class Reservation {
     private LocalDate enddate;
 
     @Column(name = "reserv_date")
-    private Date reservdate;
+    private LocalDateTime reservdate;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_type_meal")
     private Type_meal type_meal;
 
@@ -58,13 +59,12 @@ public class Reservation {
     @Column(name = "num_child")
     private int numChild;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_status")
     private Status status;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_room")
-    @JsonIgnore
     private Room room;
 
     @Column(name = "cost")
@@ -135,11 +135,11 @@ public class Reservation {
     }
 
 
-    public Date getReservdate() {
+    public LocalDateTime getReservdate() {
         return reservdate;
     }
 
-    public void setReservdate(Date reservdate) {
+    public void setReservdate(LocalDateTime reservdate) {
         this.reservdate = reservdate;
     }
 
