@@ -8,6 +8,7 @@ import com.example.hotel.models.User;
 import javax.persistence.*;
 import java.sql.Date;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class ReservationDTO {
     private Long id;
@@ -20,7 +21,7 @@ public class ReservationDTO {
     private String payment;
     private LocalDate startdate;
     private LocalDate enddate;
-    private Date reservdate;
+    private LocalDateTime reservdate;
     private String type_meal;
     private int numAdult;
     private int numChild;
@@ -92,11 +93,11 @@ public class ReservationDTO {
     }
 
 
-    public Date getReservdate() {
+    public LocalDateTime getReservdate() {
         return reservdate;
     }
 
-    public void setReservdate(Date reservdate) {
+    public void setReservdate(LocalDateTime reservdate) {
         this.reservdate = reservdate;
     }
 
