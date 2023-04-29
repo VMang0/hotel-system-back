@@ -66,4 +66,9 @@ public class RoomController {
         return typeBedRepository.findAll();
     }
 
+    @PutMapping("/updateMeal/{id}/{cost}")
+    public ResponseEntity<?> updateMeal(@PathVariable Long id, @PathVariable double cost) {
+        return roomService.updateMeals(id, cost);
+    }
+
 }
