@@ -1,19 +1,19 @@
 package com.example.hotel.services;
 
 import com.example.hotel.DTO.RoomDTO;
-import com.example.hotel.models.Image;
-import com.example.hotel.models.Room;
-import com.example.hotel.models.Type_bed;
-import com.example.hotel.models.Type_room;
+import com.example.hotel.models.*;
 import com.example.hotel.repositories.RoomRepository;
 import com.example.hotel.repositories.TypeBedRepository;
+import com.example.hotel.repositories.TypeMealsRepository;
 import com.example.hotel.repositories.TypeRoomRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,6 +28,7 @@ public class RoomService {
     private final RoomRepository roomRepository;
     private final TypeRoomRepository typeRoomRepository;
     private final TypeBedRepository typeBedRepository;
+    private final TypeMealsRepository typeMealsRepository;
 
     public Room createNewRoom(RoomDTO roomDTO, MultipartFile[] files) throws IOException {
         Room room = new Room();
@@ -103,5 +104,13 @@ public class RoomService {
         Type_bed type_bed = typeBedRepository.getById(room.get().getType_bed().getId());
         roomDTO.setType_bed(type_bed.getName());
         return roomDTO;
+    }
+
+    public ResponseEntity<?> updateMeals(Long id, double cost){
+        typeMealsRepository.findById(id).map(meals -> {
+            meals.setCost(cost);
+            return typeMealsRepository.save(meals);
+        }).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST));
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
