@@ -2,21 +2,29 @@ package com.example.hotel.controllers;
 
 import com.example.hotel.DTO.ReservationDTO;
 import com.example.hotel.DTO.ReservationUserDTO;
-import com.example.hotel.configuratoins.NotFoundException;
+import com.example.hotel.configuratoins.Doc;
 import com.example.hotel.models.*;
 import com.example.hotel.repositories.ReservationRepository;
-import com.example.hotel.repositories.RoomRepository;
 import com.example.hotel.repositories.StatusRepository;
 import com.example.hotel.services.ReservationService;
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.BaseFont;
+import com.itextpdf.text.pdf.PdfWriter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.List;
 
 @RestController
 @CrossOrigin("http://localhost:3000")
@@ -28,6 +36,7 @@ public class ReservationController {
     private ReservationRepository reservationRepository;
     @Autowired
     private StatusRepository statusRepository;
+
 
     @PostMapping("/add_reservation")
     public ResponseEntity<Reservation> newReservation(@RequestBody ReservationDTO reservationDTO) throws IOException {
@@ -60,30 +69,12 @@ public class ReservationController {
         return reservationService.update(id, status);
     }
 
-  /*  @PostMapping("/contracts/{id}")
-    public ResponseEntity<?> createContract(@PathVariable Long id, @RequestBody Contract request) throws IOException, DocumentException {
-        String folderPath = request.getFolderPath();
-        Reservation reservation = reservationRepository.getById(id);
-        Document document = new Document();
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        PdfWriter.getInstance(document, baos);
-        document.open();
-
-        document.add(new Paragraph("Договор на бронирование"));
-        document.add(new Paragraph("Информация о бронировании:"));
-        document.add(new Paragraph("Имя: " + reservation.getName()));
-        document.add(new Paragraph("Фамилия: " + reservation.getLastname()));
-        document.add(new Paragraph("Отчество: " + reservation.getPatronymic()));
-        document.add(new Paragraph("Номер телефона: " + reservation.getPhoneNumber()));
-        document.close();
-        String fileName = "contract.pdf";
-        System.out.println("ПУТЬ" + folderPath);
-        Path path = Paths.get(folderPath + fileName);
-
-        Files.write(path, baos.toByteArray());
-
-        return ResponseEntity.ok().build();
-    }*/
+    @GetMapping("/contracts/{id}")
+    public ResponseEntity<?> createContract(@PathVariable Long id) throws IOException, DocumentException {
+        Reservation reservation = reservationService.getReservationById(id);
+        Doc doc = new Doc();
+        return doc.CreatePDF(reservation);
+    }
 
     @GetMapping("/reservations/user/{id}")
     public ResponseEntity<List<ReservationUserDTO>> getReservationByUser(@PathVariable Long id) {
