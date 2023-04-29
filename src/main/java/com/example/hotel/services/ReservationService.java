@@ -2,13 +2,15 @@ package com.example.hotel.services;
 
 import com.example.hotel.DTO.ReservationDTO;
 import com.example.hotel.DTO.ReservationUserDTO;
-import com.example.hotel.configuratoins.NotFoundException;
 import com.example.hotel.models.*;
 import com.example.hotel.repositories.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -37,6 +39,8 @@ public class ReservationService {
     private final UserRepository userRepository;
     private final RoomRepository roomRepository;
     private final CardRepository cardRepository;
+    @Autowired
+    private JavaMailSender mailSender;
 
     public Reservation createNewReserv(ReservationDTO reservationDTO) throws IOException {
         Reservation reservation = new Reservation();
@@ -84,6 +88,9 @@ public class ReservationService {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    public Reservation getReservationById(Long id){
+        return reservationRepository.getById(id);
+    }
 
     public List<LocalDate> getReservationDates(Long id){
         Optional<Room> room = roomRepository.findById(id);
@@ -96,7 +103,11 @@ public class ReservationService {
         for (Reservation reservation : reservations) {
             dates.addAll(getDatesBetween(reservation.getStartdate(), reservation.getEnddate()));
         }
-        return dates;
+
+        List<LocalDate> todayDates = dates.stream()
+                .filter(date -> date.isAfter(LocalDate.now()) || date.isEqual(LocalDate.now()))
+                .collect(Collectors.toList());
+        return todayDates;
     }
 
     private List<LocalDate> getDatesBetween(LocalDate startDate, LocalDate endDate) {
@@ -154,8 +165,18 @@ public class ReservationService {
             if (duration.toHours() >= 24) {
                 reservation.setStatus(statusRepository.findById(3L).orElseThrow(() -> new IllegalArgumentException("Invalid status id")));
                 reservationRepository.save(reservation);
+                sendEmail(reservation.getUser().getEmail());
             }
         }
+    }
+
+    public void sendEmail(String email){
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("mangwork960@gmail.com");
+        message.setTo(email);
+        message.setSubject("VMANG0");
+        message.setText("Ваша бронь в отеле VMang0 аннулирована в связи с неоплатой! С уважением, администрация отеля VMang0!");
+        mailSender.send(message);
     }
 
     @Scheduled(cron = "0 0 * * * ?")
