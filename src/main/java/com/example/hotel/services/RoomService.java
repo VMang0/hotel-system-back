@@ -2,10 +2,7 @@ package com.example.hotel.services;
 
 import com.example.hotel.DTO.RoomDTO;
 import com.example.hotel.models.*;
-import com.example.hotel.repositories.RoomRepository;
-import com.example.hotel.repositories.TypeBedRepository;
-import com.example.hotel.repositories.TypeMealsRepository;
-import com.example.hotel.repositories.TypeRoomRepository;
+import com.example.hotel.repositories.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -17,6 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,6 +27,8 @@ public class RoomService {
     private final TypeRoomRepository typeRoomRepository;
     private final TypeBedRepository typeBedRepository;
     private final TypeMealsRepository typeMealsRepository;
+    private final ReservationRepository reservationRepository;
+    private final StatusRepository statusRepository;
 
     public Room createNewRoom(RoomDTO roomDTO, MultipartFile[] files) throws IOException {
         Room room = new Room();
@@ -56,7 +56,9 @@ public class RoomService {
         return roomRepository.save(room);
     }
     public ResponseEntity<?> delete(Long id){
-        if (!roomRepository.existsById(id)) {
+        List<Status> status = statusRepository.findAllById(Arrays.asList(1L, 2L));
+        List<Reservation> reservations = reservationRepository.findAllByRoomAndStatusIn(roomRepository.findById(id), status);
+        if (!roomRepository.existsById(id) || !reservations.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         roomRepository.deleteById(id);
@@ -110,6 +112,22 @@ public class RoomService {
         typeMealsRepository.findById(id).map(meals -> {
             meals.setCost(cost);
             return typeMealsRepository.save(meals);
+        }).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST));
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    public ResponseEntity<?> updateRoom(RoomDTO roomDTO){
+        Type_room type_room = typeRoomRepository.findByName(roomDTO.getType_room());
+        Type_bed type_bed = typeBedRepository.findByName(roomDTO.getType_bed());
+        Room room = roomRepository.findById(roomDTO.getId()).map(room1 -> {
+            room1.setNumber(roomDTO.getNumber());
+            room1.setCost(roomDTO.getCost());
+            room1.setDescription(roomDTO.getDescription());
+            room1.setSquare(roomDTO.getSquare());
+            room1.setName(roomDTO.getName());
+            room1.setType_room(type_room);
+            room1.setType_bed(type_bed);
+            return roomRepository.save(room1);
         }).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST));
         return new ResponseEntity<>(HttpStatus.OK);
     }

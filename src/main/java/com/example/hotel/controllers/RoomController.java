@@ -71,4 +71,8 @@ public class RoomController {
         return roomService.updateMeals(id, cost);
     }
 
+    @PutMapping("/edit_room")
+    public ResponseEntity<?> updateRoom(@RequestBody RoomDTO roomDTO) throws IOException {
+        return roomService.updateRoom(roomDTO);
+    }
 }
