@@ -18,7 +18,7 @@ public class Reservation {
     @Column(name = "id_reservation")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
     @JoinColumn(name = "id_user")
     private User user;
 
