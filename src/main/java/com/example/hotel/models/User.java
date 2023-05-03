@@ -20,12 +20,16 @@ public class User implements UserDetails {
     private Long id;
     @Column(name = "email", unique = true)
     private String email;
+
     @Column(name = "password", length = 100)
     private String password;
     @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
     @CollectionTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"))
     @Enumerated(EnumType.STRING)
     private Set<Role> roles = new HashSet<>();
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    private List<Reservation> reservations = new ArrayList<>();
 
     public boolean isAdmin(){
         return roles.contains(Role.ADMIN);

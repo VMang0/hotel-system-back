@@ -2,8 +2,12 @@ package com.example.hotel.services;
 
 import com.example.hotel.DTO.LoginDTO;
 import com.example.hotel.configuratoins.NotFoundException;
+import com.example.hotel.models.Reservation;
+import com.example.hotel.models.Status;
 import com.example.hotel.models.User;
 import com.example.hotel.models.enums.Role;
+import com.example.hotel.repositories.ReservationRepository;
+import com.example.hotel.repositories.StatusRepository;
 import com.example.hotel.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +19,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,6 +35,8 @@ public class UserService{
     private String verificationCode = "";
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ReservationRepository reservationRepository;
+    private final StatusRepository statusRepository;
 
     public User createNewUser(User user) {
         String email = user.getEmail();
@@ -60,7 +68,11 @@ public class UserService{
     }
 
     public ResponseEntity<?> delete(Long id){
+        List<Status> status = statusRepository.findAllById(Arrays.asList(1L, 2L));
+        List<Reservation> reservations = reservationRepository.findAllByUserAndStatusIn(userRepository.findById(id), status);
         if (!userRepository.existsById(id)) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }else if(!reservations.isEmpty()){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         userRepository.deleteById(id);
