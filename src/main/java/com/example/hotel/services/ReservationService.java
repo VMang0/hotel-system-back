@@ -21,10 +21,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -98,7 +95,7 @@ public class ReservationService {
             return null;
         }
         List<Status> status = statusRepository.findAllById(Arrays.asList(1L, 2L));
-        List<Reservation> reservations = reservationRepository.findAllByRoomAndStatusIn(room.get(), status);
+        List<Reservation> reservations = reservationRepository.findAllByRoomAndStatusIn(room, status);
         List<LocalDate> dates = new ArrayList<>();
         for (Reservation reservation : reservations) {
             dates.addAll(getDatesBetween(reservation.getStartdate(), reservation.getEnddate()));
@@ -192,5 +189,10 @@ public class ReservationService {
                 reservationRepository.save(reservation);
             }
         }
+    }
+
+    public  List<Reservation> getResevationByStatus(){
+        List<Status> status = statusRepository.findAllById(Arrays.asList(1L, 2L));
+        return reservationRepository.findAllByStatusIn(status);
     }
 }

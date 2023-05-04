@@ -6,6 +6,7 @@ import com.example.hotel.configuratoins.Doc;
 import com.example.hotel.models.*;
 import com.example.hotel.repositories.ReservationRepository;
 import com.example.hotel.repositories.StatusRepository;
+import com.example.hotel.repositories.UserRepository;
 import com.example.hotel.services.ReservationService;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.BaseFont;
@@ -36,6 +37,9 @@ public class ReservationController {
     private ReservationRepository reservationRepository;
     @Autowired
     private StatusRepository statusRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
 
     @PostMapping("/add_reservation")
@@ -95,6 +99,18 @@ public class ReservationController {
     public ResponseEntity<?> payReservation(@PathVariable Long id, @RequestBody Card card){
         reservationService.getPayReservation(id, card);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("/find/{id}")
+    public List<Reservation> verify(@PathVariable Long id) {
+        List<Status> status = statusRepository.findAllById(Arrays.asList(1L, 2L));
+        return reservationRepository.findAllByUserAndStatusIn(userRepository.findById(id), status);
+    }
+
+    @GetMapping("/reservation/by/status")
+    public ResponseEntity<List<Reservation>> getReservayionByStatus() {
+       List<Reservation> reservations = reservationService.getResevationByStatus();
+        return ResponseEntity.ok(reservations);
     }
 
 }
