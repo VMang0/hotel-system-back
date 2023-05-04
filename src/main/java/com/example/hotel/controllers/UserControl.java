@@ -73,6 +73,11 @@ public class UserControl {
         String email = request.get("email");
         return userService.sendCode(email);
     }
+    @PostMapping("/send-code2")
+    public ResponseEntity<Void> sendCode2(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        return userService.sendCode2(email);
+    }
 
     @PostMapping("/verify-code")
     public ResponseEntity<Void> verifyCode(@RequestBody Map<String, String> request) {
@@ -80,6 +85,10 @@ public class UserControl {
         return userService.verifyCode(code);
     }
 
+    @PutMapping("/edit_password")
+    public ResponseEntity<?> editPassword(@RequestBody User user) {
+        return userService.editPassword(user);
+    }
 
 }
 

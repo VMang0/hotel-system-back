@@ -67,6 +67,14 @@ public class UserService{
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    public ResponseEntity<?> editPassword(User newUser){
+        User user = userRepository.findById(newUser.getId()).map(user1 -> {
+            user1.setPassword(passwordEncoder.encode(newUser.getPassword()));
+            return userRepository.save(user1);
+        }).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST));
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     public ResponseEntity<?> delete(Long id){
         List<Status> status = statusRepository.findAllById(Arrays.asList(1L, 2L));
         List<Reservation> reservations = reservationRepository.findAllByUserAndStatusIn(userRepository.findById(id), status);
@@ -115,6 +123,20 @@ public class UserService{
         message.setTo(email);
         message.setSubject("Verification Code");
         message.setText("Ваш код для регистрации в системе отеля VMang0: " + verificationCode);
+        mailSender.send(message);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    public ResponseEntity<Void> sendCode2(String email){
+        if (email == null){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        verificationCode = String.format("%06d", (int) (Math.random() * 999999));
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("mangwork960@gmail.com");
+        message.setTo(email);
+        message.setSubject("Verification Code");
+        message.setText("Ваш код для обновления пароля аккаунта в системе отеля VMang0: " + verificationCode);
         mailSender.send(message);
         return new ResponseEntity<>(HttpStatus.OK);
     }
